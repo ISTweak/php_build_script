@@ -18,4 +18,4 @@ xcopy ImageMagick\ImageMagick-Windows\ImageMagick\Magick++\lib\Magick++.h ImageM
 xcopy ImageMagick\ImageMagick-Windows\VisualMagick\lib\CORE_RL_Magick++_.lib ImageMagick\lib
 xcopy ImageMagick\ImageMagick-Windows\VisualMagick\lib\CORE_RL_MagickCore_.lib ImageMagick\lib
 xcopy ImageMagick\ImageMagick-Windows\VisualMagick\lib\CORE_RL_MagickWand_.lib ImageMagick\lib
-xcopy ImageMagick\ImageMagick-Windows\VisualMagick\bin\CORE_RL_*.dll ImageMagick\dll
+xcopy ImageMagick\ImageMagick-Windows\VisualMagick\bin\*.dll ImageMagick\dll
