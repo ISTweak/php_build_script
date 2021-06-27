@@ -6,7 +6,7 @@ rd /s /q pecl\imagick
 git clone -b master https://github.com/mkoppanen/imagick.git pecl\imagick
 sed -i -e 's/@PACKAGE_VERSION@/ISTweak built it./' pecl\imagick\php_imagick.h
 
-if NOT EXIST php-%phpversion%\*.* (
+if NOT EXIST php-%phpversion% (
 	git clone -b PHP-%phpversion% https://github.com/php/php-src.git php-%phpversion%
 )
 cd php-%phpversion%
@@ -20,25 +20,31 @@ xcopy ..\..\..\..\..\ImageMagick\include\MagickCore ..\deps\include\MagickCore /
 xcopy ..\..\..\..\..\ImageMagick\include\MagickWand ..\deps\include\MagickWand /I /Y
 
 set OCI=""
-if EXIST ..\..\..\..\..\instantclient_11_2\*.* (
-	xcopy ..\..\..\..\..\instantclient_11_2\sdk\lib\msvc\*.lib ..\deps\lib /Y
-	xcopy ..\..\..\..\..\instantclient_11_2\sdk\include\*.h ..\deps\include /Y
-	set OCI="--with-oci8"
+if EXIST ..\..\..\..\..\instantclient_%oraver%\sdk (
+	xcopy ..\..\..\..\..\instantclient_%oraver%\sdk\lib\msvc\*.lib ..\deps\lib /Y
+	xcopy ..\..\..\..\..\instantclient_%oraver%\sdk\include\*.h ..\deps\include /Y
+	if %phpversion:~0,1% == 8 (
+		if %oraver:~0,2% == 19 (
+			set OCI=--enable-pdo --with-pdo-oci=shared --with-oci8-19=shared --with-pdo-oci=shared
+		) else (
+			set OCI=--enable-pdo --with-pdo-oci=shared --with-oci8-12c=shared --with-pdo-oci=shared
+		)
+	) else (
+		set OCI=--with-oci8-12c=shared --with-pdo-oci=shared
+	)
 )
 
-call buildconf
-call configure --disable-all --enable-cli --with-all-shared --with-imagick %OCI% %etcmod%
-call nmake
-
-xcopy x64\Release_TS\php_*.dll ..\..\..\..\..\ /Y
-call nmake clean
-
+if EXIST Makefile (
+	nmake clean
+)
+call buildconf --force
+if "%etcmod%" equ "snap" (
+	call configure --enable-snapshot-build --enable-com-dotnet=shared --without-analyzer %OCI%
+	call nmake
+	nmake snap
+) else (
+	call configure --disable-all --enable-cli --with-all-shared --with-imagick --with-sqlite3 %OCI% %etcmod%
+	call nmake
+	xcopy x64\Release_TS\php_*.dll ..\..\..\..\..\ /Y
+)
 cd ..\..\..\..\..\
-
-if EXIST php_imagick.dll (
-	ren php_imagick.dll php_imagick-%phpversion%-%verstr%-x64.dll
-)
-if EXIST php_oci8.dll (
-	ren php_oci8.dll php_oci8-%phpversion%-%verstr%-x64.dll
-)
-cd php-sdk

@@ -1,20 +1,22 @@
 @echo off
 cd "%~dp0"
 
-set /p phpversion="PHPのバージョンを入力してください。(7.2.25) : "
-set /p vsver="VisualStudioのバージョンを入力してください（15 or 16）：　"
-set /p dpver="phpsdk_depsのブランチを入力してください（master or 7.4）：　"
-set /p etcmod="その他のconfigureオプション：　"
-echo PHP-%phpversion%をVC%vsver%でビルドします。
-echo;
+set /p phpversion="PHPのバージョンを入力してください。(7.4.16/8.0.3 etc...) : "
+set /p oraver="instantclientのバージョンを入力してください（12_2 or 19_10, 18_5 etc...）：　"
+set /p etcmod="その他のconfigureオプション(--with-sqlite3等)：　"
 
-if %vsver%==15 (
+if %phpversion:~0,1% == 7 (
 	set vernum=2017
 	set verstr=vc15
 ) else (
 	set vernum=2019
 	set verstr=vs16
 )
+set dpver=%phpversion:~0,3%
+
+echo PHP-%phpversion%を%verstr%でビルドします。
+echo;
+
 call "C:\Program Files (x86)\Microsoft Visual Studio\%vernum%\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 if NOT EXIST php-sdk\*.* (
